@@ -137,6 +137,13 @@ class _TopBar extends StatelessWidget {
                   controller.busy ? null : controller.checkoutSelectedBranch,
               child: const Text('Checkout branch'),
             ),
+            OutlinedButton.icon(
+              onPressed: controller.busy
+                  ? null
+                  : () => _showFirmwareBuildOptionsDialog(context, controller),
+              icon: const Icon(Icons.tune),
+              label: const Text('Firmware build options'),
+            ),
             FilterChip(
               label: const Text('Leak alerts enabled'),
               selected: controller.leakDetectionEnabled,
@@ -228,6 +235,85 @@ class _TopBar extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showFirmwareBuildOptionsDialog(
+  BuildContext context,
+  OrchestratorController controller,
+) {
+  var ledEnabled = controller.activityLedEnabled;
+  var ledGpioText = controller.activityLedGpio.toString();
+
+  showDialog<void>(
+    context: context,
+    builder: (dialogContext) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Firmware build options'),
+            content: SizedBox(
+              width: 420,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    'These options are compiled into firmware and take effect after build and flash.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Activity LED enabled'),
+                    subtitle: const Text('Blink heartbeat LED in firmware main loop'),
+                    value: ledEnabled,
+                    onChanged: (value) {
+                      setState(() {
+                        ledEnabled = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    initialValue: ledGpioText,
+                    decoration: const InputDecoration(
+                      labelText: 'Activity LED GPIO',
+                      helperText: 'Valid range: 0-48',
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      ledGpioText = value;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  final parsedGpio =
+                      int.tryParse(ledGpioText) ?? controller.activityLedGpio;
+                  _runAndShowErrors(
+                    context,
+                    () => controller.updateActivityLedSettings(
+                      enabled: ledEnabled,
+                      gpio: parsedGpio,
+                    ),
+                  );
+                  Navigator.of(dialogContext).pop();
+                },
+                child: const Text('Apply'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }
 
 Future<void> _runAndShowErrors(

@@ -17,6 +17,8 @@ class ToolchainService {
     required DeviceProfile device,
     required String projectDirectory,
     required String nimbleCheckoutDirectory,
+    required bool activityLedEnabled,
+    required int activityLedGpio,
   }) async {
     final generated = File('$projectDirectory\\generated_env.ini');
     final envName = generatedEnvironmentNameFor(device);
@@ -29,6 +31,8 @@ build_flags =
   -DDEVICE_ARCH=\\"${device.architecture}\\"
   -DDEVICE_FLASH_MB=${device.flashSizeMb}
   -DDEVICE_PSRAM_MB=${device.psramSizeMb}
+  -DACTIVITY_LED_ENABLED=${activityLedEnabled ? 1 : 0}
+  -DACTIVITY_LED_GPIO=$activityLedGpio
 ''',
     );
   }
@@ -37,6 +41,8 @@ build_flags =
     required List<DeviceProfile> devices,
     required String projectDirectory,
     required String nimbleCheckoutDirectory,
+    required bool activityLedEnabled,
+    required int activityLedGpio,
   }) async {
     final generated = File('$projectDirectory\\generated_env.ini');
     final sectionsByEnv = <String, String>{};
@@ -53,6 +59,8 @@ build_flags =
   -DDEVICE_ARCH=\\"${device.architecture}\\"
   -DDEVICE_FLASH_MB=${device.flashSizeMb}
   -DDEVICE_PSRAM_MB=${device.psramSizeMb}
+  -DACTIVITY_LED_ENABLED=${activityLedEnabled ? 1 : 0}
+  -DACTIVITY_LED_GPIO=$activityLedGpio
 ''',
       );
     }

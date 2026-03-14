@@ -52,6 +52,8 @@ class OrchestratorController extends ChangeNotifier {
   bool _leakDetectionEnabled = true;
   int _leakThresholdBytes = 8192;
   double _leakThresholdPercent = 0.15;
+  bool _activityLedEnabled = true;
+  int _activityLedGpio = 2;
   String? _selectedBranch;
   String? _statusMessage;
   Timer? _telemetryTimer;
@@ -73,6 +75,8 @@ class OrchestratorController extends ChangeNotifier {
   bool get leakDetectionEnabled => _leakDetectionEnabled;
   int get leakThresholdBytes => _leakThresholdBytes;
   double get leakThresholdPercent => _leakThresholdPercent;
+  bool get activityLedEnabled => _activityLedEnabled;
+  int get activityLedGpio => _activityLedGpio;
   String? get selectedBranch => _selectedBranch;
   String? get statusMessage => _statusMessage;
   bool get stressLoopEnabled => _stressLoopEnabled;
@@ -266,6 +270,8 @@ class OrchestratorController extends ChangeNotifier {
           devices: devicesToFlash,
           projectDirectory: _firmwareDirectory,
           nimbleCheckoutDirectory: _nimbleCheckoutDirectory,
+          activityLedEnabled: _activityLedEnabled,
+          activityLedGpio: _activityLedGpio,
         );
       } catch (error) {
         _appendCommandResult('firmware environment preparation failed: $error');
@@ -464,6 +470,19 @@ class OrchestratorController extends ChangeNotifier {
         payload: <String, dynamic>{'transport': transport},
       ),
     );
+  }
+
+  Future<void> updateActivityLedSettings({
+    required bool enabled,
+    required int gpio,
+  }) async {
+    if (gpio < 0 || gpio > 48) {
+      throw RangeError.range(gpio, 0, 48, 'gpio');
+    }
+
+    _activityLedEnabled = enabled;
+    _activityLedGpio = gpio;
+    notifyListeners();
   }
 
   Future<void> decodeCapturedCrash(DeviceProfile device) async {

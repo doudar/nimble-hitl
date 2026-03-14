@@ -5,8 +5,17 @@
 #include "app/nimble_engine.h"
 #include "app/telemetry_reporter.h"
 
+#ifndef ACTIVITY_LED_ENABLED
+#define ACTIVITY_LED_ENABLED 1
+#endif
+
+#ifndef ACTIVITY_LED_GPIO
+#define ACTIVITY_LED_GPIO 2
+#endif
+
 namespace {
-static constexpr uint8_t kLedPin = 2;
+static constexpr bool kActivityLedEnabled = ACTIVITY_LED_ENABLED != 0;
+static constexpr uint8_t kActivityLedPin = ACTIVITY_LED_GPIO;
 
 DeviceState deviceState;
 CommandProtocol protocol;
@@ -52,13 +61,16 @@ void processFrame(const String& rawFrame) {
   awaitingSerialHandshake = false;
   engine.handleCommand(command);
 }
+
 }  // namespace
 
 void setup() {
   Serial.begin(921600);
   delay(250);
-  pinMode(kLedPin, OUTPUT);
-  digitalWrite(kLedPin, LOW);
+  if (kActivityLedEnabled) {
+    pinMode(kActivityLedPin, OUTPUT);
+    digitalWrite(kActivityLedPin, LOW);
+  }
   deviceState.refreshTelemetry();
   engine.begin(publishFrame);
   telemetry.begin(publishFrame);
@@ -68,10 +80,10 @@ void setup() {
 void loop() {
   const auto now = millis();
 
-  // Blink the onboard LED every second as a heartbeat.
-  if (now - lastLedToggleMs >= 500) {
+  // Blink the configured activity LED as a heartbeat.
+  if (kActivityLedEnabled && now - lastLedToggleMs >= 500) {
     ledState = !ledState;
-    digitalWrite(kLedPin, ledState ? HIGH : LOW);
+    digitalWrite(kActivityLedPin, ledState ? HIGH : LOW);
     lastLedToggleMs = now;
   }
 
