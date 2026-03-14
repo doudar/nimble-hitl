@@ -62,7 +62,8 @@ The protocol contract lives in `shared\protocol_contract.json`. Frames are JSON 
 
 ## Windows installer automation
 
-- `.github\workflows\windows-installer.yml` defines the Windows CI/release pipeline for GitHub-hosted builds.
+- `.github\workflows\windows-installer.yml` defines the Windows CI/release pipeline for GitHub-hosted builds, runs on pushes to `main`, force-updates a rolling `main-latest` tag, and refreshes the matching GitHub release assets each run.
+- The same workflow also runs on `v*` tag pushes to publish versioned installer releases.
 - `scripts\stage_windows_bundle.ps1` stages the Flutter Windows release output together with `firmware\`, `shared\`, a bundled Python toolchain, and a native `esptool.exe` download from Espressif releases.
 - `scripts\bootstrap_windows_tools.ps1` bootstraps the same repo-local Windows toolchain for a source checkout by downloading embedded Python, installing `platformio`/`esptool`, and extracting a native `esptool.exe` into `tools\`.
 - `installer\windows\nimble_hitl.iss` compiles a per-user Inno Setup installer that deploys the self-contained release under `%LOCALAPPDATA%\Programs\NimBLE HITL`.
