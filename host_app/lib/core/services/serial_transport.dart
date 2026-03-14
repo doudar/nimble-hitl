@@ -154,10 +154,13 @@ class SerialTransport {
     // was already enqueued will see null via _port and exit early.
     final port = _port;
     _port = null;
-    port?.close();
-    port?.dispose();
     if (!_frames.isClosed) {
       await _frames.close();
     }
+    // Brief delay so the Windows kernel can drain any pending I/O completions
+    // from the last poll before we tear down the native handle. Without this,
+    // libserialport triggers a _CrtIsValidHeapPointer assertion on Windows.
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    port?.close();
   }
 }

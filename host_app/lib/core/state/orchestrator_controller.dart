@@ -139,6 +139,20 @@ class OrchestratorController extends ChangeNotifier {
     });
   }
 
+  Future<void> disconnectFromDevice(DeviceProfile device) async {
+    await _guard(() async {
+      _statusMessage = 'Disconnecting from ${device.portName}...';
+      _appendCommandResult('${device.portName}: disconnecting serial transport.');
+      _appendDeviceLog(device.portName, '[toolchain] Disconnecting serial transport');
+      notifyListeners();
+      await orchestratorService.disconnect(device.portName);
+      _devices[device.portName] = device.copyWith(connected: false);
+      _appendCommandResult('${device.portName}: serial transport disconnected.');
+      _appendDeviceLog(device.portName, '[toolchain] Serial transport disconnected');
+      notifyListeners();
+    });
+  }
+
   Future<void> connectToDevice(DeviceProfile device) async {
     await _guard(() async {
       _statusMessage = 'Connecting to ${device.portName}...';

@@ -6,6 +6,7 @@ class BoardPanel extends StatelessWidget {
   const BoardPanel({
     required this.device,
     required this.onConnect,
+    required this.onDisconnect,
     required this.onDecodeCrash,
     required this.onSwitchTransport,
     super.key,
@@ -13,6 +14,7 @@ class BoardPanel extends StatelessWidget {
 
   final DeviceProfile device;
   final VoidCallback onConnect;
+  final VoidCallback onDisconnect;
   final VoidCallback? onDecodeCrash;
   final VoidCallback onSwitchTransport;
 
@@ -33,8 +35,8 @@ class BoardPanel extends StatelessWidget {
                   spacing: 8,
                   children: <Widget>[
                     FilledButton.tonal(
-                      onPressed: onConnect,
-                      child: Text(device.connected ? 'Reconnect' : 'Connect'),
+                      onPressed: device.connected ? onDisconnect : onConnect,
+                      child: Text(device.connected ? 'Disconnect' : 'Connect'),
                     ),
                     OutlinedButton(
                       onPressed: onDecodeCrash,

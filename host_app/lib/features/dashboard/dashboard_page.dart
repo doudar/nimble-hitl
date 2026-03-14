@@ -51,7 +51,10 @@ class DashboardPage extends StatelessWidget {
                     ? null
                     : (controller.stressRunning
                         ? controller.stopStressTest
-                        : controller.startStressTest),
+                        : () => _runAndShowErrors(
+                            context,
+                            controller.startStressTest,
+                          )),
                 icon: Icon(controller.stressRunning ? Icons.stop : Icons.bolt),
                 tooltip: controller.stressRunning
                     ? 'Stop stress test'
@@ -321,7 +324,8 @@ class _BoardColumn extends StatelessWidget {
       children: <Widget>[
         BoardPanel(
           device: device!,
-          onConnect: () => controller.connectToDevice(device!),
+          onConnect: () => _runAndShowErrors(context, () => controller.connectToDevice(device!)),
+          onDisconnect: () => _runAndShowErrors(context, () => controller.disconnectFromDevice(device!)),
           onDecodeCrash: controller.hasCapturedCrash(device!.portName)
               ? () => controller.decodeCapturedCrash(device!)
               : null,
