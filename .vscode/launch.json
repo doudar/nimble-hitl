@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Windows Host App",
+      "request": "launch",
+      "type": "dart",
+      "program": "${workspaceFolder}\\host_app\\lib\\main.dart",
+      "cwd": "${workspaceFolder}\\host_app",
+      "deviceId": "windows"
+    }
+  ]
+}

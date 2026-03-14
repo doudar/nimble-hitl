@@ -1,0 +1,47 @@
+{
+  "protocolVersion": 1,
+  "transport": {
+    "primary": "serial",
+    "secondary": "ble-control-characteristic",
+    "framing": "newline-delimited-json"
+  },
+  "frameKinds": [
+    "command",
+    "response",
+    "telemetry",
+    "event",
+    "log"
+  ],
+  "commands": [
+    "handshake",
+    "setDeviceName",
+    "configureServer",
+    "configureClient",
+    "configureAdvertising",
+    "startAdvertising",
+    "stopAdvertising",
+    "setSecurity",
+    "setMtu",
+    "swapRole",
+    "connectPeer",
+    "disconnectPeer",
+    "notifyCharacteristic",
+    "readCharacteristic",
+    "writeCharacteristic",
+    "switchControlTransport",
+    "pollTelemetry",
+    "runStressPass",
+    "captureDiagnostics"
+  ],
+  "telemetryFields": [
+    "freeHeap",
+    "minimumFreeHeap",
+    "mtu",
+    "activeRole",
+    "transport",
+    "deviceName",
+    "leakAlert",
+    "lastError"
+  ]
+}
+

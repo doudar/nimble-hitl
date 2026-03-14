@@ -1,0 +1,91 @@
+name: Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Resolve app version
+        id: version
+        shell: pwsh
+        run: |
+          $versionLine = Select-String -Path 'host_app\pubspec.yaml' -Pattern '^version:\s*(.+)$'
+          $version = $versionLine.Matches[0].Groups[1].Value.Trim()
+          $normalizedVersion = $version.Split('+')[0]
+          "app_version=$normalizedVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Validate and build Flutter host app
+        working-directory: host_app
+        shell: pwsh
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test
+          flutter build windows
+
+      - name: Validate firmware build
+        shell: pwsh
+        run: |
+          python -m pip install platformio
+          python -m platformio run --project-dir firmware
+
+      - name: Stage self-contained Windows bundle
+        shell: pwsh
+        run: .\scripts\stage_windows_bundle.ps1 -RepoRoot $PWD
+
+      - name: Archive staged bundle
+        shell: pwsh
+        run: |
+          $zipPath = "dist\windows-installer\nimble-hitl-windows-bundle-${{ steps.version.outputs.app_version }}.zip"
+          if (Test-Path $zipPath) {
+            Remove-Item $zipPath -Force
+          }
+          Compress-Archive -Path 'dist\windows-installer\app\*' -DestinationPath $zipPath
+
+      - name: Build Inno Setup installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.5
+        with:
+          path: installer\windows\nimble_hitl.iss
+          options: /DAppVersion=${{ steps.version.outputs.app_version }} /DStageDir="${{ github.workspace }}\dist\windows-installer"
+
+      - name: Upload staged bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nimble-hitl-windows-bundle-${{ steps.version.outputs.app_version }}
+          path: dist\windows-installer\nimble-hitl-windows-bundle-${{ steps.version.outputs.app_version }}.zip
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nimble-hitl-windows-installer-${{ steps.version.outputs.app_version }}
+          path: dist\windows-installer\installer\*.exe
+
+      - name: Publish release assets
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist\windows-installer\nimble-hitl-windows-bundle-${{ steps.version.outputs.app_version }}.zip
+            dist\windows-installer\installer\*.exe

@@ -1,0 +1,57 @@
+
+### 📋 The NimBLE HITL Testing Suite Plan
+
+**Role Context:**
+Act as a Senior Software Development Engineer in Test (SDET) and a Full-Stack Engineer specializing in Flutter Desktop, ESP32 embedded systems (C++/ESP-IDF/Arduino), and serial communication.
+
+**Objective:**
+Design and implement a comprehensive Hardware-in-the-Loop (HITL) test suite for the `h2zero/NimBLE-Arduino` library. The system consists of a Flutter-based desktop host application that controls, flashes, and orchestrates two ESP32 microcontrollers to perform exhaustive stress testing of the NimBLE library.
+
+**Technical Stack:**
+
+* **Host Application:** Flutter (Desktop).
+* **Firmware:** C++ (ESP-IDF / Arduino Core).
+* **CLI Integrations:** Git (for branch management), `esptool.py` (for device profiling), `pio` (PlatformIO) or `idf.py` (for compilation/flashing), and `esp32-exception-decoder` (for crash tracing).
+
+Please generate the code, architecture, and implementation steps for the following system modules:
+
+#### Module 1: Device Management & Auto-Discovery
+
+* **Hardware Detection:** The Flutter app must scan all available COM/TTY ports and automatically detect connected ESP32 devices.
+* **Hardware Profiling:** Use CLI tools (like `esptool.py`) to interrogate each board and determine its specific architecture (e.g., ESP32-D0WD, ESP32-S3), flash size, and available PSRAM.
+* **Source Control Integration:** Provide a UI dropdown fetching available branches from `https://github.com/h2zero/nimble-arduino/`. The app must clone/checkout the selected branch locally.
+* **Dynamic Compilation & Flashing:** Based on the hardware profile, automatically generate the build configuration (e.g., `platformio.ini` or `sdkconfig`), compile the test firmware, and upload it to both ESP32s.
+
+#### Module 2: Communication Protocol
+
+* **Primary Transport:** Serial connection. Implement a robust, non-blocking Serial parser in both Flutter and the ESP32 firmware (preferably using serialized JSON or a structured command/response byte framing).
+* **Secondary Transport (BLE):** The firmware must accept a Serial command that transitions its command-listening interface from Serial to BLE. When in this mode, the Flutter app (or the opposing ESP32) will send control commands over custom BLE characteristics.
+
+#### Module 3: Test Orchestration & NimBLE API Coverage
+
+* **Dynamic Configuration:** The Flutter app acts as the master orchestrator. It must send commands to the ESP32s to dynamically create and configure services, characteristics, descriptors, security parameters, and advertising data.
+* **Exhaustive API Testing:** Implement test routines that cover *every* method available in the NimBLE library (e.g., MTU negotiations, device name changes, read/write/notify operations, connection parameter updates).
+* **Role Reversal:** The test script must force the ESP32s to swap Client and Server roles multiple times during an active test session *without rebooting*.
+* **Stress Testing:** Introduce randomized, high-frequency command loops to test the library under heavy load in real physical conditions.
+
+#### Module 4: Diagnostics, Memory & Crash Handling
+
+* **Memory Monitoring:** The Flutter app must periodically poll the ESP32s for `esp_get_free_heap_size()` and `esp_get_minimum_free_heap_size()`.
+* **Leak Detection:** Implement customizable alerts in the Flutter app (toggleable ON/OFF, with adjustable byte/percentage threshold levels) that trigger if the minimum free heap drops unexpectedly.
+* **Crash Tracing:** If an ESP32 becomes unresponsive or reboots, the Flutter app must capture the serial core dump/backtrace and pipe it through the ESP32 exception decoder to translate memory addresses into human-readable code lines.
+
+#### Module 5: Flutter UI/UX Layout
+
+* **Top Bar Dashboard:** Display real-time telemetry from both boards (Current Branch, Architecture, Heap Size, MTU size, active roles, and any memory leak alerts).
+* **Dual-Pane Logging:** Implement a split-screen terminal view. The left pane shows real-time serial logs for ESP32 #1; the right pane shows logs for ESP32 #2.
+* **Command Output Stream:** Extract specific command returns/test results from the raw serial stream and display them cleanly at the top of the UI, separate from the raw, scrolling logs.
+
+Here is a paragraph detailing the firmware requirements that you can drop directly into the prompt plan, perhaps right after the "Technical Stack" or "Module 3" section:
+
+---
+
+#### Module 6: Test Firmware Architecture & Requirements
+
+The test firmware must be a highly modular, state-driven C++ application built on the Arduino Core (or ESP-IDF with the Arduino component) designed to directly wrap and expose the `h2zero/NimBLE-Arduino` library. Its core requirement is to act as a dynamic execution engine rather than a static application. It must implement a robust, non-blocking command parser capable of receiving structured payloads (e.g., JSON or byte-framed commands) from the Flutter host via Serial, and subsequently translating those payloads into specific NimBLE API calls. The firmware must support hardware-agnostic compilation, utilizing preprocessor macros to seamlessly adapt to the specific ESP32 variant (e.g., base ESP32, S3, C3) and memory configurations (like PSRAM) dictated by the host's build process. Operationally, it must manage state securely enough to tear down and rebuild BLE Client and Server roles, modify advertising parameters, and adjust MTU sizes on the fly *without* triggering a device reboot. Finally, it must run a continuous telemetry thread that pipes heap memory statistics, active state data, and explicit operation success/error codes back to the host, while maintaining a secondary listener capable of receiving execution commands over a dedicated BLE characteristic once initialized.
+
+---

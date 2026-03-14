@@ -1,0 +1,200 @@
+{
+  "description": "Scripted NimBLE stress sequence with response/event gating and cross-device coordination.",
+  "steps": [
+    {
+      "name": "Handshake",
+      "command": "handshake",
+      "target": "each",
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "handshake",
+        "timeoutMs": 3000
+      },
+      "delayMs": 40
+    },
+    {
+      "name": "Configure server on first",
+      "command": "configureServer",
+      "target": "first",
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "configureServer",
+        "timeoutMs": 3000
+      },
+      "delayMs": 60
+    },
+    {
+      "name": "Configure advertising on first",
+      "command": "configureAdvertising",
+      "target": "first",
+      "payload": {
+        "scanResponse": true
+      },
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "configureAdvertising",
+        "timeoutMs": 3000
+      },
+      "delayMs": 60
+    },
+    {
+      "name": "Start advertising on first",
+      "command": "startAdvertising",
+      "target": "first",
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "startAdvertising",
+        "timeoutMs": 3000
+      },
+      "delayMs": 60
+    },
+    {
+      "name": "Configure client on second",
+      "command": "configureClient",
+      "target": "second",
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "configureClient",
+        "timeoutMs": 3000
+      },
+      "delayMs": 60
+    },
+    {
+      "name": "Connect second to first",
+      "command": "connectPeer",
+      "target": "second",
+      "payload": {
+        "address": "{{firstDeviceAddress}}"
+      },
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "connectPeer",
+        "payloadContains": {
+          "connected": true
+        },
+        "timeoutMs": 15000
+      },
+      "delayMs": 500
+    },
+    {
+      "name": "Discover server attributes from second",
+      "command": "discoverAttributes",
+      "target": "second",
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "discoverAttributes",
+        "timeoutMs": 5000
+      },
+      "delayMs": 500
+    },
+    {
+      "name": "Write to characteristic on first",
+      "command": "writeCharacteristic",
+      "target": "second",
+      "payload": {
+        "value": "stress-write-{{cycle}}-{{run}}"
+      },
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "writeCharacteristic",
+        "payloadContains": {
+          "value": "stress-write-{{cycle}}-{{run}}"
+        },
+        "timeoutMs": 3000
+      },
+      "delayMs": 40
+    },
+    {
+      "name": "Read characteristic on first",
+      "command": "readCharacteristic",
+      "target": "second",
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "readCharacteristic",
+        "payloadContains": {
+          "value": "stress-write-{{cycle}}-{{run}}"
+        },
+        "timeoutMs": 3000
+      },
+      "delayMs": 40
+    },
+    {
+      "name": "Subscribe to notifications on second",
+      "command": "subscribeCharacteristic",
+      "target": "second",
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "subscribeCharacteristic",
+        "payloadContains": {
+          "subscribed": true
+        },
+        "timeoutMs": 5000
+      },
+      "delayMs": 80
+    },
+    {
+      "name": "High-frequency notify burst",
+      "command": "notifyCharacteristic",
+      "target": "first",
+      "payload": {
+        "value": "hf-notify-{{cycle}}"
+      },
+      "repeat": 20,
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "notifyCharacteristic",
+        "timeoutMs": 3000
+      },
+      "delayMs": 10
+    },
+    {
+      "name": "Confirm notification callback on second",
+      "target": "second",
+      "expect": {
+        "device": "same",
+        "kind": "event",
+        "type": "characteristicNotification",
+        "payloadContains": {
+          "value": "hf-notify-{{cycle}}"
+        },
+        "timeoutMs": 5000
+      },
+      "delayMs": 20
+    },
+    {
+      "name": "Poll telemetry on each",
+      "command": "pollTelemetry",
+      "target": "each",
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "pollTelemetry",
+        "timeoutMs": 3000
+      },
+      "delayMs": 40
+    },
+    {
+      "name": "Capture diagnostics on each",
+      "command": "captureDiagnostics",
+      "target": "each",
+      "expect": {
+        "device": "same",
+        "kind": "response",
+        "type": "captureDiagnostics",
+        "timeoutMs": 3000
+      },
+      "delayMs": 40
+    }
+  ]
+}

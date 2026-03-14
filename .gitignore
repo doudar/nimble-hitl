@@ -1,0 +1,11 @@
+host_app/.dart_tool/
+host_app/.flutter-plugins
+host_app/.flutter-plugins-dependencies
+host_app/.packages
+host_app/build/
+host_app/windows/flutter/ephemeral/
+firmware/.pio/
+firmware/.vscode/
+dist/
+*.log
+
