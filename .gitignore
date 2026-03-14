@@ -8,4 +8,5 @@ firmware/.pio/
 firmware/.vscode/
 dist/
 *.log
+nimble_arduino_checkout/
 
