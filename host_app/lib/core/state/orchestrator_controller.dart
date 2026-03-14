@@ -93,6 +93,32 @@ class OrchestratorController extends ChangeNotifier {
   bool hasCapturedCrash(String portName) =>
       (_capturedCrashLogs[portName] ?? const <String>[]).isNotEmpty;
 
+  String get stressScriptFilePath => _stressScriptPath;
+
+  Future<Map<String, dynamic>> loadStressScriptDocument() async {
+    final scriptFile = File(_stressScriptPath);
+    if (!await scriptFile.exists()) {
+      return <String, dynamic>{
+        'description': 'Stress script editor document',
+        'steps': <Map<String, dynamic>>[],
+      };
+    }
+
+    final decoded = jsonDecode(await scriptFile.readAsString());
+    if (decoded is Map<String, dynamic>) {
+      return decoded;
+    }
+
+    throw const FormatException('Stress script must be a JSON object.');
+  }
+
+  Future<void> saveStressScriptDocument(Map<String, dynamic> document) async {
+    final scriptFile = File(_stressScriptPath);
+    await scriptFile.writeAsString(
+      const JsonEncoder.withIndent('  ').convert(document),
+    );
+  }
+
   Future<void> initialize() async {
     try {
       await refreshBranches();

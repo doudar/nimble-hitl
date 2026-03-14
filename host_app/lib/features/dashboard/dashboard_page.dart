@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/models/device_profile.dart';
 import '../../core/state/orchestrator_controller.dart';
+import 'widgets/stress_script_editor_window.dart';
 import 'widgets/board_panel.dart';
 import 'widgets/command_result_panel.dart';
 import 'widgets/log_pane.dart';
@@ -60,6 +61,11 @@ class DashboardPage extends StatelessWidget {
                     ? 'Stop stress test'
                     : 'Start stress test',
               ),
+              IconButton(
+                onPressed: () => _openStressScriptEditor(context, controller),
+                icon: const Icon(Icons.account_tree),
+                tooltip: 'Open stress script editor',
+              ),
             ],
           ),
           body: Padding(
@@ -96,6 +102,21 @@ class DashboardPage extends StatelessWidget {
       },
     );
   }
+}
+
+Future<void> _openStressScriptEditor(
+  BuildContext context,
+  OrchestratorController controller,
+) async {
+  await showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return Dialog.fullscreen(
+        child: StressScriptEditorWindow(controller: controller),
+      );
+    },
+  );
 }
 
 class _TopBar extends StatelessWidget {
