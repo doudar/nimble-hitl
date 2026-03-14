@@ -43,7 +43,7 @@ class BoardPanel extends StatelessWidget {
                       child: const Text('Decode crash'),
                     ),
                     OutlinedButton(
-                      onPressed: onSwitchTransport,
+                      onPressed: device.connected ? onSwitchTransport : null,
                       child: Text('Use ${telemetry.transport == 'serial' ? 'BLE' : 'Serial'}'),
                     ),
                   ],

@@ -120,10 +120,24 @@ class OrchestratorController extends ChangeNotifier {
       _statusMessage = 'Refreshing NimBLE-Arduino branches...';
       notifyListeners();
       final branches = await orchestratorService.listBranches();
+      String? defaultBranch;
+      if (branches.isNotEmpty) {
+        try {
+          defaultBranch = await orchestratorService.getDefaultBranch();
+        } catch (_) {
+          defaultBranch = null;
+        }
+      }
       _branches
         ..clear()
         ..addAll(branches);
-      _selectedBranch ??= _branches.isEmpty ? null : _branches.first;
+      if (_selectedBranch == null || !_branches.contains(_selectedBranch)) {
+        if (defaultBranch != null && _branches.contains(defaultBranch)) {
+          _selectedBranch = defaultBranch;
+        } else {
+          _selectedBranch = _branches.isEmpty ? null : _branches.first;
+        }
+      }
     });
   }
 

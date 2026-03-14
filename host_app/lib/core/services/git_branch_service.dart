@@ -24,6 +24,33 @@ class GitBranchService {
       ..sort();
   }
 
+  Future<String?> getRemoteDefaultBranch() async {
+    final result = await _runner.runChecked(
+      'git',
+      <String>['ls-remote', '--symref', remoteUrl, 'HEAD'],
+    );
+
+    for (final line in result.stdout.split('\n')) {
+      final trimmed = line.trim();
+      if (!trimmed.startsWith('ref: ')) {
+        continue;
+      }
+
+      final parts = trimmed.split(RegExp(r'\s+'));
+      if (parts.length < 3 || parts.last != 'HEAD') {
+        continue;
+      }
+
+      const branchPrefix = 'refs/heads/';
+      final branchRef = parts[1];
+      if (branchRef.startsWith(branchPrefix)) {
+        return branchRef.substring(branchPrefix.length);
+      }
+    }
+
+    return null;
+  }
+
   Future<void> cloneOrCheckout({
     required String branch,
     required String checkoutDirectory,

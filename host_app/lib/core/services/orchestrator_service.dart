@@ -26,6 +26,8 @@ class OrchestratorService {
 
   Future<List<String>> listBranches() => gitBranchService.listRemoteBranches();
 
+  Future<String?> getDefaultBranch() => gitBranchService.getRemoteDefaultBranch();
+
   Future<void> connect(
     DeviceProfile device,
     void Function(ProtocolFrame frame) onFrame,
