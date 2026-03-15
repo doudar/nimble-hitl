@@ -1,0 +1,76 @@
+Continue working on this repository as a senior full-stack / embedded test engineer.
+
+Project goal:
+Build a Hardware-in-the-Loop (HITL) testing suite for `h2zero/NimBLE-Arduino` with:
+- a Flutter desktop host app
+- ESP32 firmware built with Arduino/PlatformIO
+- serial JSON command transport
+- BLE secondary control transport
+- diagnostics, memory monitoring, crash decoding, and stress testing
+
+Start by reading these files in this order:
+1. `objectives.txt`
+2. `README.md`
+3. `shared/protocol_contract.json`
+4. `shared/nimble_operation_catalog.json`
+5. `host_app/lib/core/state/orchestrator_controller.dart`
+6. `host_app/lib/core/services/`
+7. `host_app/lib/features/dashboard/`
+8. `firmware/platformio.ini`
+9. `firmware/src/main.cpp`
+10. `firmware/src/app/`
+
+Current implementation status:
+- The repo was originally almost empty and has now been scaffolded into a working architecture.
+- The Flutter host app includes:
+  - branch discovery and checkout hooks for `https://github.com/h2zero/nimble-arduino.git`
+  - device discovery and profiling hooks using serial ports + `esptool`
+  - PlatformIO environment generation and flashing hooks with Windows-friendly tool resolution fallbacks
+  - a dashboard UI with top-bar controls, command output stream, and dual log panes
+  - telemetry polling, leak alert logic, and captured crash-trace decoding hooks
+  - serial transport and protocol decoding, including fallback handling for raw serial log lines
+- The ESP32 firmware includes:
+  - a modular JSON command parser
+  - NimBLE engine scaffolding for server/client configuration, advertising, MTU/security changes, role swaps, stress passes, and BLE control characteristics
+  - telemetry reporting using a FreeRTOS task
+  - startup event reporting and raw serial buffer overflow handling
+
+Important constraints / reality check:
+- The host-side Flutter toolchain is now available in this environment. `flutter analyze`, `flutter test`, and `flutter build windows` completed successfully for `host_app`.
+- A real Windows runtime issue was found during hardware testing: device profiling used `python -m esptool`, which can fail with `No module named esptool` if the resolved Python interpreter is missing that module.
+- The host app was updated to prefer bundled tool entrypoints from `tools\python\Scripts\` for `esptool` and `pio`/`platformio`, then fall back to `python -m ...` and `py -m ...` when needed.
+- A follow-up Windows issue was also fixed: when multiple fallback launchers failed, the app could surface a misleading final error such as `"py" is not recognized...` instead of the more actionable earlier failure. Command fallback now preserves the most useful error message.
+- The host app now also prefers a native bundled `tools\esptool\esptool.exe` before any Python-based fallback, and the Windows bundle staging script was updated to download/extract Espressif's `esptool-v5.2.0-windows-amd64.zip` into that location.
+- Another host-side runtime issue was fixed in the build/flash path: if a board had an active serial connection, PlatformIO upload could stall while the UI remained stuck on `Preparing firmware builds for connected devices...`. The controller now disconnects serial transports before flashing, updates status per device/stage, and streams build/upload output into the dashboard command stream and per-device log panes.
+- A broader Windows setup gap was identified for source checkouts: packaged installs bundle PlatformIO under `tools\python`, but a raw repo checkout may have no local PlatformIO at all. A new `scripts\bootstrap_windows_tools.ps1` script now bootstraps repo-local Windows tools (`tools\python` + `tools\esptool`), and the host app reports that script path when PlatformIO resolution fails instead of surfacing a bare `pio` error.
+- The bootstrap/staging PowerShell scripts were also hardened so repo-root discovery happens after parameter binding. This avoids a startup failure where `$PSScriptRoot` could be empty during parameter default evaluation.
+- The multi-device flash loop was hardened too: each discovered board is now attempted independently, device-specific failures are logged into the dashboard output streams, and one failed COM port no longer prevents later devices from being attempted.
+- Firmware build/flash and real hardware validation still need confirmation in the target environment.
+
+Highest-value next steps:
+1. For source-checkout testing, place Espressif's Windows `esptool.exe` bundle under `tools\esptool\` (so `tools\esptool\esptool.exe` exists), then re-test hardware discovery on the ESP32 devices that previously showed `No module named esptool` / `"py" is not recognized..."`.
+2. For source-checkout testing on a new Windows machine, run `powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap_windows_tools.ps1` once before using build/flash, then verify PlatformIO flashing works and that the disconnect-before-upload behavior resolves the previous stall.
+3. Harden BLE secondary transport on the host side. The firmware exposes the control path, but the host-side BLE command path likely still needs deeper implementation and testing.
+4. Expand NimBLE API coverage beyond the representative command catalog now in place.
+5. Validate dynamic role switching, stress loops, telemetry polling, and crash decoding against real ESP32 hardware.
+6. Review firmware lifecycle safety around repeated reconfiguration/deinit/reinit paths.
+
+Areas most likely to need follow-up:
+- PlatformIO/NimBLE API mismatches once the firmware is compiled for real
+- any remaining installed-app path/tool resolution issues that only appear in the packaged Windows deployment
+- host-side BLE control integration
+- richer command/result modeling for exhaustive NimBLE API coverage
+- persistence/export of logs, crash traces, and test results
+
+Implementation guidance:
+- Preserve the current architecture unless real build/test results justify a change.
+- Prefer surgical fixes over rewrites.
+- Keep the shared protocol contract in sync with both host and firmware.
+- Update `README.md` when behavior or setup steps change.
+- If you add major new work, keep a concise working log in your own session artifacts or notes.
+
+Desired outcome for the next session:
+- Confirm the `esptool` discovery fix on real hardware and validate `pio` flashing in the same environment.
+- Keep the host app building cleanly while moving firmware/runtime validation forward.
+- Make BLE control and crash diagnostics more production-ready.
+- Push the harness closer to full NimBLE API coverage with real, testable flows.

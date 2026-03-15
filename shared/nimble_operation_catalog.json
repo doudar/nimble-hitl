@@ -1,0 +1,53 @@
+{
+  "coverageAreas": [
+    {
+      "name": "Device lifecycle",
+      "operations": [
+        "init",
+        "deinit",
+        "setDeviceName",
+        "setPower",
+        "setMTU",
+        "setSecurityAuth",
+        "setSecurityPasskey"
+      ]
+    },
+    {
+      "name": "Server role",
+      "operations": [
+        "createServer",
+        "createService",
+        "createCharacteristic",
+        "createDescriptor",
+        "startService",
+        "startAdvertising",
+        "stopAdvertising",
+        "notify"
+      ]
+    },
+    {
+      "name": "Client role",
+      "operations": [
+        "createClient",
+        "connect",
+        "disconnect",
+        "discoverAttributes",
+        "readValue",
+        "writeValue",
+        "subscribe"
+      ]
+    },
+    {
+      "name": "Stress scenarios",
+      "operations": [
+        "rapidRoleSwap",
+        "mtuRandomization",
+        "securityReconfiguration",
+        "advertisingMutation",
+        "highFrequencyNotify",
+        "telemetryPolling"
+      ]
+    }
+  ]
+}
+
