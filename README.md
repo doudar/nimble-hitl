@@ -80,6 +80,22 @@ The protocol contract lives in `shared\protocol_contract.json`. Frames are JSON 
 7. If a board emits a crash backtrace into the raw log pane, use the **Decode crash** action after a successful build has produced the matching ELF file.
 8. Extend `shared/nimble_operation_catalog.json` and the `NimbleEngine` command handlers to add broader API coverage.
 
+## One-button cross-platform build
+
+- Run the orchestrator script directly from the repository root:
+  - `python scripts/dev_workflow.py` on Windows
+  - `python3 scripts/dev_workflow.py` on Linux/macOS
+- The script will:
+  - Build firmware via PlatformIO.
+  - Run `flutter pub get`.
+  - Run `flutter analyze` and `flutter test`.
+  - Build the host desktop target for the current platform (`windows`, `macos`, or `linux`).
+- For faster local iterations, skip analyze/test:
+  - `python scripts/dev_workflow.py --quick`
+  - `python3 scripts/dev_workflow.py --quick`
+- In VS Code, run task **One Button: Build + Launch (Cross Platform)** for a full one-button workflow.
+- `Ctrl+Shift+B` uses the same one-button build+launch task by default.
+
 ## Validation status
 
 - `flutter pub get`, `flutter analyze`, `flutter test`, and `flutter build windows` were executed successfully for `host_app`.
