@@ -65,7 +65,7 @@ class OrchestratorController extends ChangeNotifier {
   bool _disposed = false;
   int _stressPassCount = 0;
   int _stressFailCount = 0;
-  final List<StressFailure> _stressFailures = <StressFailure>[];
+  final List<_StressFailure> _stressFailures = <_StressFailure>[];
 
   List<String> get branches => List<String>.unmodifiable(_branches);
   List<DeviceProfile> get devices => _devices.values.toList()
@@ -84,8 +84,8 @@ class OrchestratorController extends ChangeNotifier {
   int get stressPassCount => _stressPassCount;
   int get stressFailCount => _stressFailCount;
   bool get stressHasResults => _stressPassCount + _stressFailCount > 0;
-    List<StressFailure> get stressFailures =>
-      List<StressFailure>.unmodifiable(_stressFailures);
+  List<_StressFailure> get stressFailures =>
+      List<_StressFailure>.unmodifiable(_stressFailures);
 
   List<String> logsFor(String portName) =>
       List<String>.unmodifiable(_logs[portName] ?? const <String>[]);
@@ -1044,7 +1044,7 @@ class OrchestratorController extends ChangeNotifier {
           } catch (error) {
             _stressFailCount++;
             final reason = error.toString();
-            _stressFailures.add(StressFailure(
+            _stressFailures.add(_StressFailure(
               port: target.portName,
               stepName: step.name,
               reason: reason,
@@ -1073,7 +1073,7 @@ class OrchestratorController extends ChangeNotifier {
             _appendCommandResult('[PASS] ${target.portName}: ${step.name}');
           } else {
             _stressFailCount++;
-            _stressFailures.add(StressFailure(
+            _stressFailures.add(_StressFailure(
               port: target.portName,
               stepName: step.name,
               reason: 'expectation timed out',
@@ -1456,8 +1456,8 @@ class _ObservedFrame {
   final ProtocolFrame frame;
 }
 
-class StressFailure {
-  const StressFailure({
+class _StressFailure {
+  const _StressFailure({
     required this.port,
     required this.stepName,
     required this.reason,

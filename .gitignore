@@ -9,6 +9,4 @@ firmware/.vscode/
 dist/
 *.log
 nimble_arduino_checkout/
-tools/python/
-tools/esptool/
 
