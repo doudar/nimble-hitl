@@ -13,7 +13,7 @@ Future<void> main() async {
     await windowManager.waitUntilReadyToShow(
       const WindowOptions(),
       () async {
-        await windowManager.setFullScreen(true);
+        await windowManager.setFullScreen(false);
         await windowManager.show();
         await windowManager.focus();
       },
