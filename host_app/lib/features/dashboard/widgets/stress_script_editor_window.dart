@@ -59,8 +59,6 @@ class _StressScriptEditorWindowState extends State<StressScriptEditorWindow> {
     'telemetry',
   ];
 
-  final JsonEncoder _prettyEncoder = const JsonEncoder.withIndent('  ');
-
   bool _busy = false;
   String _description = 'Stress script editor document';
   String _status = 'Ready';
@@ -593,7 +591,7 @@ class _StressScriptEditorWindowState extends State<StressScriptEditorWindow> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: selected.command,
+                      initialValue: selected.command,
                       decoration: const InputDecoration(labelText: 'Command'),
                       items: _commands
                           .map((command) => DropdownMenuItem<String>(
@@ -610,7 +608,7 @@ class _StressScriptEditorWindowState extends State<StressScriptEditorWindow> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: selected.target,
+                      initialValue: selected.target,
                       decoration: const InputDecoration(labelText: 'Target unit'),
                       items: _targets
                           .map((target) => DropdownMenuItem<String>(
@@ -659,7 +657,7 @@ class _StressScriptEditorWindowState extends State<StressScriptEditorWindow> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: selected.expectKind,
+                      initialValue: selected.expectKind,
                       decoration: const InputDecoration(labelText: 'Expect kind'),
                       items: _expectKinds
                           .map((kind) => DropdownMenuItem<String>(
@@ -676,7 +674,7 @@ class _StressScriptEditorWindowState extends State<StressScriptEditorWindow> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: selected.expectDevice,
+                      initialValue: selected.expectDevice,
                       decoration: const InputDecoration(labelText: 'Expect device'),
                       items: _expectDevices
                           .map((device) => DropdownMenuItem<String>(
@@ -740,7 +738,7 @@ class _StressScriptEditorWindowState extends State<StressScriptEditorWindow> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<int?>(
-                      value: selected.communicationTargetId,
+                      initialValue: selected.communicationTargetId,
                       decoration: const InputDecoration(
                           labelText: 'Communicates with (cross-unit arrow)'),
                       items: _nodeDropdownItems(
@@ -755,7 +753,7 @@ class _StressScriptEditorWindowState extends State<StressScriptEditorWindow> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<int?>(
-                      value: selected.onPassId,
+                      initialValue: selected.onPassId,
                       decoration:
                           const InputDecoration(labelText: 'On pass goto'),
                       items: _nodeDropdownItems(
@@ -768,7 +766,7 @@ class _StressScriptEditorWindowState extends State<StressScriptEditorWindow> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<int?>(
-                      value: selected.onFailId,
+                      initialValue: selected.onFailId,
                       decoration:
                           const InputDecoration(labelText: 'On fail goto'),
                       items: _nodeDropdownItems(

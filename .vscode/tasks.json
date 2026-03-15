@@ -1,0 +1,206 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "One Button: Build + Launch (Cross Platform)",
+      "type": "shell",
+      "command": "python",
+      "windows": {
+        "command": "python"
+      },
+      "linux": {
+        "command": "python3"
+      },
+      "osx": {
+        "command": "python3"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/dev_workflow.py",
+        "--launch"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "One Button: Build Everything (Cross Platform)",
+      "type": "shell",
+      "command": "python",
+      "windows": {
+        "command": "python"
+      },
+      "linux": {
+        "command": "python3"
+      },
+      "osx": {
+        "command": "python3"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/dev_workflow.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "One Button: Quick Build (No Analyze/Test)",
+      "type": "shell",
+      "command": "python",
+      "windows": {
+        "command": "python"
+      },
+      "linux": {
+        "command": "python3"
+      },
+      "osx": {
+        "command": "python3"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/dev_workflow.py",
+        "--quick"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Tools: Bootstrap Windows Firmware Tools",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\bootstrap_windows_tools.ps1"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Firmware: Build (PlatformIO)",
+      "type": "shell",
+      "command": "python",
+      "windows": {
+        "command": "python"
+      },
+      "linux": {
+        "command": "python3"
+      },
+      "osx": {
+        "command": "python3"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/dev_workflow.py",
+        "--skip-host"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Host: Pub Get",
+      "type": "shell",
+      "command": "flutter",
+      "args": [
+        "pub",
+        "get"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}\\host_app"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Host: Analyze",
+      "type": "shell",
+      "command": "flutter",
+      "args": [
+        "analyze"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}\\host_app"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Host: Test",
+      "type": "shell",
+      "command": "flutter",
+      "args": [
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}\\host_app"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Host: Build Desktop (Current OS)",
+      "type": "shell",
+      "command": "python",
+      "windows": {
+        "command": "python"
+      },
+      "linux": {
+        "command": "python3"
+      },
+      "osx": {
+        "command": "python3"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/dev_workflow.py",
+        "--skip-firmware"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Host: Build + Launch (Current OS)",
+      "type": "shell",
+      "command": "python",
+      "windows": {
+        "command": "python"
+      },
+      "linux": {
+        "command": "python3"
+      },
+      "osx": {
+        "command": "python3"
+      },
+      "args": [
+        "${workspaceFolder}/scripts/dev_workflow.py",
+        "--skip-firmware",
+        "--quick",
+        "--launch"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "All: Build Firmware + Host",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Firmware: Build (PlatformIO)",
+        "Host: Build Desktop (Current OS)"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}
